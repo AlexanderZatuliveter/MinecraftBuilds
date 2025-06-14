@@ -1,6 +1,5 @@
 from mcpq import Minecraft, Vec3
 import trimesh
-
 from common.files import get_resource_path
 
 file = get_resource_path("3d\\models\\glad3Dprintable-animal-octopus.STL")
