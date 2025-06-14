@@ -1,6 +1,9 @@
 from mcpq import Minecraft, Vec3
 
+from common.minecraft_wrap import MinecraftWrap
+
 mc = Minecraft('192.168.1.77')
+mcw = MinecraftWrap(mc)
 
 start = Vec3(-417, 64, -602)
 
@@ -22,7 +25,7 @@ def roof(start: Vec3, block: str):
     roof_shift = floors * floor_height
     for dx in range(-1, width + 2):
         for dz in range(-1, depth + 2):
-            mc.setBlock(block, start + Vec3(dx, roof_shift, dz))
+            mcw.set_block(block, start + Vec3(dx, roof_shift, dz))
 
 
 def antennas(start: Vec3, block: str):
@@ -31,7 +34,7 @@ def antennas(start: Vec3, block: str):
         dx = width // 3 * i + 2
         dz = depth // 2
         for a in range(5 + i * 2):
-            mc.setBlock(block, start + Vec3(dx, roof_shift + 1 + a, dz))
+            mcw.set_block(block, start + Vec3(dx, roof_shift + 1 + a, dz))
 
 
 def storage(pos: Vec3, wood_type: str):
@@ -40,30 +43,26 @@ def storage(pos: Vec3, wood_type: str):
         Vec3(0, 2, 0),
         Vec3(0, 3, 0)
     ]
-    mc.setBlockList(f"{wood_type} log", [p + pos for p in log_positions])
-    mc.setBlock(f"lantern", pos + Vec3(0, 4, 0))
 
-    chests_properties = []
+    for log_pos in log_positions:
+        mcw.set_block(f"{wood_type} log", log_pos)
+
+    mcw.set_block(f"lantern", pos + Vec3(0, 4, 0))
+
+    chests = []
     for y in range(1, 4):
-        chests_properties.append((Vec3(1, y, 0), "north"))
-        chests_properties.append((Vec3(2, y, 0), "north"))
-        chests_properties.append((Vec3(0, y, -1), "east"))
-        chests_properties.append((Vec3(0, y, -2), "east"))
-        chests_properties.append((Vec3(0, y, -3), "east"))
-
-    for (p, direction) in chests_properties:
-        block = mc.Block("chest").withData({"facing": direction})
-        mc.setBlock(block, p + pos)
+        mcw.set_block(mc.Block("chest").withData({"facing": "north"}), Vec3(1, y, 0))
+        mcw.set_block(mc.Block("chest").withData({"facing": "north"}), Vec3(2, y, 0))
+        mcw.set_block(mc.Block("chest").withData({"facing": "east"}), Vec3(0, y, -1))
+        mcw.set_block(mc.Block("chest").withData({"facing": "east"}), Vec3(0, y, -2))
+        mcw.set_block(mc.Block("chest").withData({"facing": "east"}), Vec3(0, y, -3))
 
 
 def atrium_and_pillars(pos: Vec3, lighting_block: str, pillar_block: str, floor_height: int):
 
-    lighting_positions = []
     for dx in [-1, 0, 1]:
         for dz in [-1, 0, 1]:
-            lighting_positions.append(pos + Vec3(dx, 0, dz))
-
-    mc.setBlockList(lighting_block, lighting_positions)
+            mcw.set_block(lighting_block, pos + Vec3(dx, 0, dz))
 
     pillar_positions = []
     for y in range(1, floor_height):
