@@ -24,4 +24,3 @@ mc.setBlock("smooth quartz stairs", Vec3(1, 1, 1))
 #     for x in range(1, 100):
 #         pos = Vec3(start_x + x, start_y + y, start_z)
 #         mc.setBlock(f"{color} concrete", pos)
-
