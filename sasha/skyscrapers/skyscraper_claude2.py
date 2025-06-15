@@ -5,7 +5,7 @@ import random
 mc = Minecraft('192.168.1.77')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(-430, 63, -430)
+start = Vec3(-340, 63, -577)
 
 floors = 25
 floor_height = 6

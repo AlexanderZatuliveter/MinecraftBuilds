@@ -5,7 +5,7 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('192.168.1.77')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(-592, 63, -671)
+start = Vec3(-220, 67, -65)
 
 floors = 5
 floor_height = 5
