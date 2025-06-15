@@ -4,7 +4,6 @@ from mcpq import Block, Minecraft, Vec3
 
 
 class MinecraftWrap:
-
     def __init__(self, mc: Minecraft) -> None:
         self.__mc = mc
         self.__blocks: dict[str, tuple[Block, list[Vec3]]] = {}
