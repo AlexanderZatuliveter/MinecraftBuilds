@@ -1,4 +1,4 @@
-from mcpq import Block, Minecraft, Vec3
+from mcpq import Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
 

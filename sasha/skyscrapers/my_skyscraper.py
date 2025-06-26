@@ -1,3 +1,5 @@
+import random
+from typing import Literal
 from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
@@ -267,8 +269,12 @@ def floor(pos: Vec3, floor: int, floor_height: int, floor_block: Block, pillar_b
     # Мебель
 
     # Кровать и верстак
-    mc.setBed(floor_start + Vec3(4, 1, 3), "north")
-    mc.setBed(floor_start + Vec3(3, 1, 3), "north")
+    bed_colors: list[Literal["red", "orange", "yellow", "lime", "green", "cyan", "light_blue", "blue", "purple", "magenta", "pink"]] = [
+        "red", "orange", "yellow", "lime", "green", "cyan", "light_blue", "blue", "purple", "magenta", "pink"]
+    rand_color = random.choice(bed_colors)
+
+    mc.setBed(floor_start + Vec3(4, 1, 3), "north", rand_color)
+    mc.setBed(floor_start + Vec3(3, 1, 3), "north", rand_color)
     mcw.set_block(mc.Block("crafting table"), floor_start + Vec3(2, 1, 2))
     mcw.set_block(mc.Block("lantern"), floor_start + Vec3(2, 2, 2))
 
