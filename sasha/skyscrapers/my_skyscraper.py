@@ -2,12 +2,12 @@ from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
 
-mc = Minecraft('192.168.1.77')
+mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(-565, 69, -890)
+start = Vec3(136, 63, 208)
 
-floors = 21
+floors = 20
 floor_height = 5
 width = 19
 depth = 15
@@ -19,6 +19,7 @@ pillar_block = mc.Block("gray concrete")
 roof_block = mc.Block("black concrete")
 antenna_block = mc.Block("iron bars")
 atrium_block = mc.Block("glowstone")
+railing_block = mc.Block("pale oak fence")
 
 
 def roof(pos: Vec3, block: Block):
@@ -127,12 +128,28 @@ def bookshelves_and_lanterns(pos: Vec3):
     mcw.set_block(mc.Block("lantern"), pos + Vec3(0, 3, 2))
 
 
+def street_lamp(pos: Vec3, fence_material: str, facing: str):
+    for dy in range(2, 5):
+        mcw.set_block(f"{fence_material} fence", pos + Vec3(0, dy, 0))
+    if facing == "south":
+        mcw.set_block(f"{fence_material} fence", pos + Vec3(0, 4, 1))
+        mcw.set_block(f"{fence_material} fence", pos + Vec3(-1, 4, 0))
+        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(0, 3, 1))
+        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(-1, 3, 0))
+    elif facing == "north":
+        mcw.set_block(f"{fence_material} fence", pos + Vec3(0, 4, -1))
+        mcw.set_block(f"{fence_material} fence", pos + Vec3(-1, 4, 0))
+        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(0, 3, -1))
+        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(-1, 3, 0))
+    # todo: add other facing (west and east)
+
+
 def ladder(pos: Vec3, floor: int, floor_height: int, max_floor: int):
 
     def even_floor():
         # Платформа №1
         mcw.set_block_cube("quartz block", pos + Vec3(1, 0, -1), pos + Vec3(3, 0, -4))
-        for dx in range(1, 4):
+        for dx in range(1, 5):
             mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(dx, 0, 0))
 
         # Лестница
@@ -140,7 +157,7 @@ def ladder(pos: Vec3, floor: int, floor_height: int, max_floor: int):
         for dz in range(5, 10):
             mcw.set_block("quartz stairs", pos + Vec3(1, stairs_y, -dz))
             mcw.set_block("quartz stairs", pos + Vec3(2, stairs_y, -dz))
-            mcw.set_block(mc.Block("pale oak fence"), pos + Vec3(3, stairs_y, -dz + 1))
+            mcw.set_block(mc.Block(railing_block), pos + Vec3(3, stairs_y, -dz + 1))
             mcw.set_block(mc.Block("quartz stairs").withData(
                 {"facing": "south", "half": "top"}), pos + Vec3(3, stairs_y, -dz))
             stairs_y += 1
@@ -156,19 +173,12 @@ def ladder(pos: Vec3, floor: int, floor_height: int, max_floor: int):
 
         for dx in range(1, 7):
             mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(dx, 0, -14))
-            mcw.set_block(mc.Block("pale oak fence"), pos + Vec3(dx, 1, -14))
+            mcw.set_block(mc.Block(railing_block), pos + Vec3(dx, 1, -14))
         for dz in range(10, 14):
             mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(6, 0, -dz))
-            mcw.set_block(mc.Block("pale oak fence"), pos + Vec3(6, 1, -dz))
+            mcw.set_block(mc.Block(railing_block), pos + Vec3(6, 1, -dz))
 
-        # Фонарь №1
-        for dy in range(2, 5):
-            mcw.set_block("pale oak fence", pos + Vec3(6, dy, -14))
-
-        mcw.set_block("pale oak fence", pos + Vec3(6, 4, -13))
-        mcw.set_block("pale oak fence", pos + Vec3(5, 4, -14))
-        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(6, 3, -13))
-        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(5, 3, -14))
+        street_lamp(pos + Vec3(6, 0, -14), fence_material="pale oak", facing="south")
 
         # Лестница
         stairs_y = 5
@@ -179,8 +189,8 @@ def ladder(pos: Vec3, floor: int, floor_height: int, max_floor: int):
                 {"facing": "north", "half": "top"}), pos + Vec3(6, stairs_y, -dz))
             mcw.set_block(mc.Block("quartz stairs").withData(
                 {"facing": "north", "half": "top"}), pos + Vec3(3, stairs_y, -dz))
-            mcw.set_block("pale oak fence", pos + Vec3(6, stairs_y + 1, -dz))
-            mcw.set_block("pale oak fence", pos + Vec3(3, stairs_y, -dz - 1))
+            mcw.set_block(railing_block, pos + Vec3(6, stairs_y + 1, -dz))
+            mcw.set_block(railing_block, pos + Vec3(3, stairs_y, -dz - 1))
             stairs_y -= 1
 
         # Платформа №2
@@ -189,48 +199,38 @@ def ladder(pos: Vec3, floor: int, floor_height: int, max_floor: int):
         for dx in range(1, 7):
             if dx >= 5:
                 mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(dx, floor_height, 0))
-            mcw.set_block(mc.Block("pale oak fence"), pos + Vec3(dx, floor_height + 1, 0))
+            mcw.set_block(mc.Block(railing_block), pos + Vec3(dx, floor_height + 1, 0))
         for dz in range(1, 5):
             mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(6, floor_height, -dz))
-            mcw.set_block(mc.Block("pale oak fence"), pos + Vec3(6, floor_height + 1, -dz))
+            mcw.set_block(mc.Block(railing_block), pos + Vec3(6, floor_height + 1, -dz))
 
-        # Фонарь №2
-        for dy in range(floor_height + 2, floor_height + 5):
-            mcw.set_block("pale oak fence", pos + Vec3(6, dy, 0))
-
-        mcw.set_block("pale oak fence", pos + Vec3(6, floor_height + 4, -1))
-        mcw.set_block("pale oak fence", pos + Vec3(5, floor_height + 4, 0))
-        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(6, floor_height + 3, -1))
-        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(5, floor_height + 3, 0))
+        street_lamp(pos + Vec3(6, floor_height, 0), fence_material="pale oak", facing="north")
 
     if floor == 0:
         mcw.set_block_cube("quartz block", pos + Vec3(4, 0, 0), pos + Vec3(6, 0, -4))
         for dx in range(4, 7):
-            mcw.set_block("pale oak fence", pos + Vec3(dx, 1, -4))
+            mcw.set_block(railing_block, pos + Vec3(dx, 1, -4))
         for dz in range(0, 4):
-            mcw.set_block("pale oak fence", pos + Vec3(6, 1, -dz))
+            mcw.set_block(railing_block, pos + Vec3(6, 1, -dz))
 
-        # Фонарь
-        for dy in range(2, 5):
-            mcw.set_block("pale oak fence", pos + Vec3(6, dy, 0))
-
-        mcw.set_block("pale oak fence", pos + Vec3(6, 4, -1))
-        mcw.set_block("pale oak fence", pos + Vec3(5, 4, 0))
-        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(6, 3, -1))
-        mcw.set_block(mc.Block("lantern").withData({"hanging": True}), pos + Vec3(5, 3, 0))
+        street_lamp(pos + Vec3(6, 0, 0), fence_material="pale oak", facing="north")
 
     elif floor == max_floor:
         if max_floor % 2 == 0:
-            for dx in range(3, 6):
-                mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(dx, floor_height, -9))
-                mcw.set_block("pale oak fence", pos + Vec3(dx, floor_height + 1, -9))
-            mcw.set_block("pale oak fence", pos + Vec3(6, floor_height + 1, -9))
+            mcw.set_block(railing_block, pos + Vec3(3, floor_height + 1, -9))
+            mcw.set_block(railing_block, pos + Vec3(4, floor_height + 1, -9))
+            for dz in range(10, 15):
+                mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(4, floor_height, -dz))
+                mcw.set_block(railing_block, pos + Vec3(4, floor_height + 1, -dz))
+            for dx in range(1, 4):
+                mcw.set_block(railing_block, pos + Vec3(dx, floor_height + 1, -14))
+            street_lamp(pos + Vec3(4, floor_height, -14), fence_material="pale oak", facing="south")
         else:
             mcw.set_block_cube("quartz block", pos + Vec3(1, floor_height, -1), pos + Vec3(3, floor_height, -5))
             for dx in range(1, 4):
                 mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(dx, floor_height, 0))
-                mcw.set_block("pale oak fence", pos + Vec3(dx, floor_height + 1, 0))
-                mcw.set_block("pale oak fence", pos + Vec3(dx, floor_height + 1, -5))
+                mcw.set_block(railing_block, pos + Vec3(dx, floor_height + 1, 0))
+                mcw.set_block(railing_block, pos + Vec3(dx, floor_height + 1, -5))
 
     if floor % 2 != 0:
         odd_floor()
