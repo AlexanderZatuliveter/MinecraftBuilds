@@ -221,6 +221,7 @@ def ladder(pos: Vec3, floor: int, floor_height: int, max_floor: int):
         if max_floor % 2 == 0:
             mcw.set_block(railing_block, pos + Vec3(3, floor_height + 1, -9))
             mcw.set_block(railing_block, pos + Vec3(4, floor_height + 1, -9))
+            mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(4, floor_height, -9))
             for dz in range(10, 15):
                 mcw.set_block(mc.Block("quartz slab").withData({"type": "top"}), pos + Vec3(4, floor_height, -dz))
                 mcw.set_block(railing_block, pos + Vec3(4, floor_height + 1, -dz))
