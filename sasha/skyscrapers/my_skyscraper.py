@@ -297,7 +297,7 @@ def floor(pos: Vec3, floor: int, floor_height: int, floor_block: Block, pillar_b
 # -----------------------------------------------------------------------------------------
 
 
-mc.postToChat("Стройка небоскреба...")
+mc.postToChat("Стройка небоскреба №1...")
 
 # Строим этажи
 for f in range(floors):
