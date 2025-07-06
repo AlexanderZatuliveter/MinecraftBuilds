@@ -1,3 +1,4 @@
+from typing import Literal
 from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
@@ -5,10 +6,11 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(390, 62, 415)
+start = Vec3(370, 62, 460)
 
 width = 15
-depth = 33
+room_depth = 14
+depth = room_depth * 2 + 5
 floor_height = 5
 floors = 3
 
@@ -18,6 +20,61 @@ floor_block = mc.Block("stone bricks")
 window_block = mc.Block("glass pane")
 ladder_block = mc.Block("stone brick stairs")
 railings_block = mc.Block("oak fence")
+lantern_block = mc.Block("lantern")
+
+
+def lighting(pos: Vec3):
+    mcw.set_block(lantern_block.withData({"hanging": True}), pos + Vec3(3, floor_height - 1, 3))
+    mcw.set_block(lantern_block.withData({"hanging": True}), pos + Vec3(3, floor_height - 1, room_depth - 4))
+    mcw.set_block(lantern_block.withData({"hanging": True}), pos + Vec3(width - 4, floor_height - 1, 3))
+    mcw.set_block(lantern_block.withData({"hanging": True}), pos + Vec3(width - 4, floor_height - 1, room_depth - 4))
+    mcw.set_block(lantern_block.withData({"hanging": True}), pos + Vec3(width // 2, floor_height - 1, room_depth // 2))
+    mcw.set_block(lantern_block.withData({"hanging": True}), pos +
+                  Vec3(width // 2, floor_height - 1, room_depth // 2 - 1))
+
+
+def library(pos: Vec3, room: Literal["left", "right"], enter_pos: Literal["near", "far"]):
+    lighting(pos)
+
+    if enter_pos == "near":
+        x1 = width - 3
+        x2 = width - 8
+    if enter_pos == "far":
+        x1 = width - 6
+        x2 = width - 11
+
+    if room == "left":
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(2, 1, 3), pos + Vec3(2, 3, 5))
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(5, 1, 3), pos + Vec3(5, 3, 5))
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, 3), pos + Vec3(9, 3, 5))
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(12, 1, 3), pos + Vec3(12, 3, 5))
+
+        for dz in range(room_depth - 4, room_depth - 7, -1):
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x1, 1, dz))
+            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x1 - 1, 1, dz))
+            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x1 - 1, 2, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x1 - 2, 1, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x2, 1, dz))
+            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x2 - 1, 1, dz))
+            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x2 - 1, 2, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x2 - 2, 1, dz))
+
+    if room == "right":
+
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(2, 1, room_depth - 4), pos + Vec3(2, 3, room_depth - 6))
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(5, 1, room_depth - 4), pos + Vec3(5, 3, room_depth - 6))
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, room_depth - 4), pos + Vec3(9, 3, room_depth - 6))
+        mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(12, 1, room_depth - 4), pos + Vec3(12, 3, room_depth - 6))
+
+        for dz in range(3, 6, 1):
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x1, 1, dz))
+            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x1 - 1, 1, dz))
+            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x1 - 1, 2, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x1 - 2, 1, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x2, 1, dz))
+            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x2 - 1, 1, dz))
+            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x2 - 1, 2, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x2 - 2, 1, dz))
 
 
 def ladder(pos: Vec3, floor: int, floor_height: int):
@@ -86,11 +143,11 @@ def floor(start: Vec3, floor: int, floor_height: int):
                     and (pos.y == start.y or dz not in [z for z in range(depth // 2 - 2, depth // 2 + 3)])
 
                 if floor % 2 == 0:
-                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) \
-                        and dx not in (2, 3) or (dz in (depth // 2 - 3, depth // 2 + 3) and dx in (2, 3) and y == 4)
+                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) and dx not in (2, 3) \
+                        or (dz in (depth // 2 - 3, depth // 2 + 3) and dx in (2, 3) and y == 4)
                 else:
-                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) \
-                        and dx not in (11, 12) or (dz in (depth // 2 - 3, depth // 2 + 3) and dx in (11, 12) and y == 4)
+                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) and dx not in (11, 12) \
+                        or (dz in (depth // 2 - 3, depth // 2 + 3) and dx in (11, 12) and y == 4)
 
                 is_outside_wall = (dx in (0, width - 1) or dz in (0, depth - 1)) and y in (0, floor_height - 1, floor_height) \
                     or (dx in (0, width - 1) and dz in [z for z in range(depth // 2 - 2, depth // 2 + 3)] and y == 4)
@@ -131,7 +188,12 @@ for f in range(floors):
     floor(start, f, floor_height)
 
 roof(start)
-
+# library(start + Vec3(0, 0, 19), room="right", enter_pos="near")
+# library(start, room="left", enter_pos="near")
+# library(start + Vec3(0, floor_height, 19), room="right", enter_pos="far")
+# library(start + Vec3(0, floor_height, 0), room="left", enter_pos="far")
+# library(start + Vec3(0, floor_height * 2, 19), room="right", enter_pos="near")
+# library(start + Vec3(0, floor_height * 2, 0), room="left", enter_pos="near")
 
 mcw.draw()
 mc.postToChat("Стройка небоскреба завершена!")
