@@ -5,11 +5,11 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(425, 62, 200)
+start = Vec3(390, 62, 415)
 
-width = 14
+width = 15
 depth = 33
-floor_height = 4
+floor_height = 5
 floors = 3
 
 wall_block = mc.Block("light gray concrete")
@@ -34,11 +34,11 @@ def ladder(pos: Vec3, floor: int, floor_height: int):
                 mcw.set_block(ladder_block.withData({"facing": "east"}), p)
             dx += 1
             dy += 1
-        pos1 = pos + Vec3(9, floor_height, depth // 2 + 2)
-        pos2 = pos + Vec3(12, floor_height, depth // 2 - 2)
+        pos1 = pos + Vec3(10, floor_height, depth // 2 + 2)
+        pos2 = pos + Vec3(13, floor_height, depth // 2 - 2)
         mcw.set_block_cube(floor_block, pos1, pos2)
     else:
-        dx = 8
+        dx = 9
         dy = 1
         mcw.set_block(railings_block, pos + Vec3(dx + 1, dy, depth // 2))
         for _ in range(floor_height):
@@ -60,7 +60,7 @@ def roof(pos: Vec3):
     def antennas(pos: Vec3, block: Block):
         for i in range(3):
             dx = width // 2
-            dz = depth // 4 * i + 2
+            dz = depth // 3.25 * i + 2
             for a in range(5 + i * 2):
                 mcw.set_block(block, pos + Vec3(dx, roof_shift + 1 + a, dz + 4))
 
@@ -81,15 +81,18 @@ def floor(start: Vec3, floor: int, floor_height: int):
 
                 is_edge = dx in (0, width - 1) or dz in (0, depth - 1)
                 is_column = dx in (0, width - 1) and dz in (0, depth - 1)
-                is_window = is_edge and y not in (0, floor_height) and not is_enter and not is_column
+                is_window = is_edge and y not in (0, floor_height - 1, floor_height) and not is_enter and not is_column
                 is_floor = y == 0 and dx not in (0, width - 1) and dz not in (0, depth - 1) \
                     and (pos.y == start.y or dz not in [z for z in range(depth // 2 - 2, depth // 2 + 3)])
 
                 if floor % 2 == 0:
-                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) and dx not in (2, 3)
+                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) \
+                        and dx not in (2, 3) or (dz in (depth // 2 - 3, depth // 2 + 3) and dx in (2, 3) and y == 4)
                 else:
-                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) and dx not in (10, 11)
-                is_outside_wall = (dx in (0, width - 1) or dz in (0, depth - 1)) and y in (0, floor_height) \
+                    is_dividing_wall = dz in (depth // 2 - 3, depth // 2 + 3) \
+                        and dx not in (11, 12) or (dz in (depth // 2 - 3, depth // 2 + 3) and dx in (11, 12) and y == 4)
+
+                is_outside_wall = (dx in (0, width - 1) or dz in (0, depth - 1)) and y in (0, floor_height - 1, floor_height) \
                     or (dx in (0, width - 1) and dz in [z for z in range(depth // 2 - 2, depth // 2 + 3)] and y == 4)
                 is_wall = is_outside_wall or is_dividing_wall or is_column
 
