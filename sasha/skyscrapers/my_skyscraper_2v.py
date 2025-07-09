@@ -6,7 +6,7 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(370, 62, 460)
+start = Vec3(360, 62, 370)
 
 width = 15
 room_depth = 14
@@ -33,7 +33,7 @@ def lighting(pos: Vec3):
                   Vec3(width // 2, floor_height - 1, room_depth // 2 - 1))
 
 
-def library(pos: Vec3, room: Literal["left", "right"], enter_pos: Literal["near", "far"]):
+def library(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["near", "far"]):
     lighting(pos)
 
     if enter_pos == "near":
@@ -43,7 +43,7 @@ def library(pos: Vec3, room: Literal["left", "right"], enter_pos: Literal["near"
         x1 = width - 6
         x2 = width - 11
 
-    if room == "left":
+    if room_side == "left":
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(2, 1, 3), pos + Vec3(2, 3, 5))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(5, 1, 3), pos + Vec3(5, 3, 5))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, 3), pos + Vec3(9, 3, 5))
@@ -59,7 +59,7 @@ def library(pos: Vec3, room: Literal["left", "right"], enter_pos: Literal["near"
             mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x2 - 1, 2, dz))
             mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x2 - 2, 1, dz))
 
-    if room == "right":
+    if room_side == "right":
 
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(2, 1, room_depth - 4), pos + Vec3(2, 3, room_depth - 6))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(5, 1, room_depth - 4), pos + Vec3(5, 3, room_depth - 6))
@@ -75,6 +75,57 @@ def library(pos: Vec3, room: Literal["left", "right"], enter_pos: Literal["near"
             mcw.set_block(mc.Block("oak fence"), pos + Vec3(x2 - 1, 1, dz))
             mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x2 - 1, 2, dz))
             mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x2 - 2, 1, dz))
+
+
+def bedroom(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["near", "far"]):
+    lighting(pos)
+
+    def set_bed(pos: Vec3, color: Literal["blue", "red"], direction: Literal["south", "north"]):
+        if direction == "south":
+            mc.setBed(pos, direction, color)
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "east", "half": "bottom", "open": True}), pos + Vec3(1, 0, 0))
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "east", "half": "bottom", "open": True}), pos + Vec3(1, 0, 1))
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "south", "half": "bottom", "open": True}), pos + Vec3(0, 0, 2))
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "south", "half": "bottom", "open": True}), pos + Vec3(-1, 0, 2))
+            mcw.set_block(mc.Block("ladder").withData({"facing": "north"}), pos + Vec3(-1, 0, 1))
+        else:
+            mc.setBed(pos, direction, color)
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "east", "half": "bottom", "open": True}), pos + Vec3(1, 0, -1))
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "east", "half": "bottom", "open": True}), pos + Vec3(1, 0, 0))
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "north", "half": "bottom", "open": True}), pos + Vec3(0, 0, -2))
+            mcw.set_block(mc.Block("spruce trapdoor").withData(
+                {"facing": "north", "half": "bottom", "open": True}), pos + Vec3(-1, 0, -2))
+            mcw.set_block(mc.Block("ladder").withData({"facing": "south"}), pos + Vec3(-1, 0, -1))
+
+    if enter_pos == "near":
+        x1 = width - 4
+        x2 = width - 13
+        x3 = width - 4
+        x4 = width - 9
+    else:
+        x1 = width - 3
+        x2 = width - 12
+        x3 = width - 7
+        x4 = width - 12
+
+    for dy in range(1, 3):
+        if room_side == "right":
+            for dx in range(x1, x2, -4):
+                set_bed(pos + Vec3(dx, dy, room_depth - 5), direction="south", color="red")
+            for dx in range(x3, x4, -4):
+                set_bed(pos + Vec3(dx, dy, 3), direction="south", color="blue")
+        else:
+            for dx in range(x1, x2, -4):
+                set_bed(pos + Vec3(dx, dy, 4), direction="north", color="red")
+            for dx in range(x3, x4, -4):
+                set_bed(pos + Vec3(dx, dy, room_depth - 4), direction="north", color="blue")
 
 
 def ladder(pos: Vec3, floor: int, floor_height: int):
@@ -188,12 +239,20 @@ for f in range(floors):
     floor(start, f, floor_height)
 
 roof(start)
+
 # library(start + Vec3(0, 0, 19), room="right", enter_pos="near")
 # library(start, room="left", enter_pos="near")
 # library(start + Vec3(0, floor_height, 19), room="right", enter_pos="far")
 # library(start + Vec3(0, floor_height, 0), room="left", enter_pos="far")
 # library(start + Vec3(0, floor_height * 2, 19), room="right", enter_pos="near")
 # library(start + Vec3(0, floor_height * 2, 0), room="left", enter_pos="near")
+
+# bedroom(start + Vec3(0, 0, 19), room_side="right", enter_pos="near")
+# bedroom(start, room_side="left", enter_pos="near")
+# bedroom(start + Vec3(0, floor_height, 0), room_side="left", enter_pos="far")
+# bedroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
+# bedroom(start + Vec3(0, floor_height * 2, 0), room_side="left", enter_pos="near")
+# bedroom(start + Vec3(0, floor_height * 2, 19), room_side="right", enter_pos="near")
 
 mcw.draw()
 mc.postToChat("Стройка небоскреба завершена!")
