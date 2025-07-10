@@ -6,7 +6,7 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(360, 62, 370)
+start = Vec3(450, 62, 230)
 
 width = 15
 room_depth = 14
@@ -36,6 +36,13 @@ def lighting(pos: Vec3):
 def library(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["near", "far"]):
     lighting(pos)
 
+    def table(pos: Vec3):
+        for dz in range(3):
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(0, 0, dz))
+            mcw.set_block(mc.Block("oak fence"), pos + Vec3(-1, 0, dz))
+            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(-1, 1, dz))
+            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(-2, 0, dz))
+
     if enter_pos == "near":
         x1 = width - 3
         x2 = width - 8
@@ -44,20 +51,14 @@ def library(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["
         x2 = width - 11
 
     if room_side == "left":
+
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(2, 1, 3), pos + Vec3(2, 3, 5))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(5, 1, 3), pos + Vec3(5, 3, 5))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, 3), pos + Vec3(9, 3, 5))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(12, 1, 3), pos + Vec3(12, 3, 5))
 
-        for dz in range(room_depth - 4, room_depth - 7, -1):
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x1, 1, dz))
-            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x1 - 1, 1, dz))
-            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x1 - 1, 2, dz))
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x1 - 2, 1, dz))
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x2, 1, dz))
-            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x2 - 1, 1, dz))
-            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x2 - 1, 2, dz))
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x2 - 2, 1, dz))
+        table(pos + Vec3(x1, 1, room_depth - 6))
+        table(pos + Vec3(x2, 1, room_depth - 6))
 
     if room_side == "right":
 
@@ -66,15 +67,8 @@ def library(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, room_depth - 4), pos + Vec3(9, 3, room_depth - 6))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(12, 1, room_depth - 4), pos + Vec3(12, 3, room_depth - 6))
 
-        for dz in range(3, 6, 1):
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x1, 1, dz))
-            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x1 - 1, 1, dz))
-            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x1 - 1, 2, dz))
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x1 - 2, 1, dz))
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "east"}), pos + Vec3(x2, 1, dz))
-            mcw.set_block(mc.Block("oak fence"), pos + Vec3(x2 - 1, 1, dz))
-            mcw.set_block(mc.Block("oak pressure plate"), pos + Vec3(x2 - 1, 2, dz))
-            mcw.set_block(mc.Block("oak stairs").withData({"facing": "west"}), pos + Vec3(x2 - 2, 1, dz))
+        table(pos + Vec3(x1, 1, 3))
+        table(pos + Vec3(x1, 1, 3))
 
 
 def bedroom(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["near", "far"]):
@@ -126,6 +120,36 @@ def bedroom(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["
                 set_bed(pos + Vec3(dx, dy, 4), direction="north", color="red")
             for dx in range(x3, x4, -4):
                 set_bed(pos + Vec3(dx, dy, room_depth - 4), direction="north", color="blue")
+
+
+def storage(pos: Vec3, enter_pos: Literal["near", "far"]):
+
+    # In this function the room_side is not important.
+
+    lighting(pos)
+
+    if enter_pos == "near":
+        pattern = ["right_chest", "left_chest", "log"]
+        direction = "west"
+        x1, x2 = 5, 12
+    else:
+        pattern = ["left_chest", "right_chest", "log"]
+        direction = "east"
+        x1, x2 = 3, 10
+
+    for dx in range(x1, x2, 3):
+        for dy in range(1, 4):
+            for i, dz in enumerate(range(3, 11)):
+                block_type = pattern[i % 3]
+
+                if block_type == "log":
+                    mcw.set_block(mc.Block("oak log").withData({"axis": "y"}), pos + Vec3(dx, dy, dz))
+                elif block_type == "right_chest":
+                    mcw.set_block(mc.Block("chest").withData(
+                        {"facing": direction, "type": "right"}), pos + Vec3(dx, dy, dz))
+                elif block_type == "left_chest":
+                    mcw.set_block(mc.Block("chest").withData(
+                        {"facing": direction, "type": "left"}), pos + Vec3(dx, dy, dz))
 
 
 def ladder(pos: Vec3, floor: int, floor_height: int):
@@ -241,7 +265,7 @@ for f in range(floors):
 roof(start)
 
 # library(start + Vec3(0, 0, 19), room="right", enter_pos="near")
-# library(start, room="left", enter_pos="near")
+# library(pos=start, room="left", enter_pos="near")
 # library(start + Vec3(0, floor_height, 19), room="right", enter_pos="far")
 # library(start + Vec3(0, floor_height, 0), room="left", enter_pos="far")
 # library(start + Vec3(0, floor_height * 2, 19), room="right", enter_pos="near")
@@ -253,6 +277,11 @@ roof(start)
 # bedroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
 # bedroom(start + Vec3(0, floor_height * 2, 0), room_side="left", enter_pos="near")
 # bedroom(start + Vec3(0, floor_height * 2, 19), room_side="right", enter_pos="near")
+
+# storage(start + Vec3(0, 0, 19), enter_pos="near")
+# storage(start, enter_pos="near")
+# storage(start + Vec3(0, floor_height, 19), enter_pos="far")
+# storage(start + Vec3(0, floor_height, 0), enter_pos="far")
 
 mcw.draw()
 mc.postToChat("Стройка небоскреба завершена!")

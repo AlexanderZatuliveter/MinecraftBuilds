@@ -1,8 +1,8 @@
 from mcpq import Minecraft, Vec3
 
-mc = Minecraft('192.168.1.77')
+mc = Minecraft('localhost')
 
-start = Vec3(-396, 65, -603)
+start = Vec3(455, 63, 252)
 
 block = mc.getBlockWithData(start)
 
