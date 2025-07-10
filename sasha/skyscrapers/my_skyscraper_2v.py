@@ -6,7 +6,7 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(450, 62, 230)
+start = Vec3(450, 62, 340)
 
 width = 15
 room_depth = 14
@@ -67,8 +67,8 @@ def library(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, room_depth - 4), pos + Vec3(9, 3, room_depth - 6))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(12, 1, room_depth - 4), pos + Vec3(12, 3, room_depth - 6))
 
-        table(pos + Vec3(x1, 1, 3))
-        table(pos + Vec3(x1, 1, 3))
+        table(pos + Vec3(x1, 1, 3)) 
+        table(pos + Vec3(x2, 1, 3))
 
 
 def bedroom(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["near", "far"]):
@@ -264,24 +264,12 @@ for f in range(floors):
 
 roof(start)
 
-# library(start + Vec3(0, 0, 19), room="right", enter_pos="near")
-# library(pos=start, room="left", enter_pos="near")
-# library(start + Vec3(0, floor_height, 19), room="right", enter_pos="far")
-# library(start + Vec3(0, floor_height, 0), room="left", enter_pos="far")
-# library(start + Vec3(0, floor_height * 2, 19), room="right", enter_pos="near")
-# library(start + Vec3(0, floor_height * 2, 0), room="left", enter_pos="near")
-
-# bedroom(start + Vec3(0, 0, 19), room_side="right", enter_pos="near")
-# bedroom(start, room_side="left", enter_pos="near")
-# bedroom(start + Vec3(0, floor_height, 0), room_side="left", enter_pos="far")
-# bedroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
-# bedroom(start + Vec3(0, floor_height * 2, 0), room_side="left", enter_pos="near")
-# bedroom(start + Vec3(0, floor_height * 2, 19), room_side="right", enter_pos="near")
-
-# storage(start + Vec3(0, 0, 19), enter_pos="near")
-# storage(start, enter_pos="near")
-# storage(start + Vec3(0, floor_height, 19), enter_pos="far")
-# storage(start + Vec3(0, floor_height, 0), enter_pos="far")
+library(start + Vec3(0, 0, 0), room_side="left", enter_pos="near")
+library(start + Vec3(0, 0, 19), room_side="right", enter_pos="near")
+bedroom(start + Vec3(0, floor_height, 0), room_side="left", enter_pos="far")
+bedroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
+storage(start + Vec3(0, floor_height * 2, 0), enter_pos="near")
+storage(start + Vec3(0, floor_height * 2, 19), enter_pos="near")
 
 mcw.draw()
 mc.postToChat("Стройка небоскреба завершена!")
