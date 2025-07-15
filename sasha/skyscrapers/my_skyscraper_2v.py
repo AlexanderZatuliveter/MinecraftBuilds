@@ -6,7 +6,7 @@ from common.minecraft_wrap import MinecraftWrap
 mc = Minecraft('localhost')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(450, 62, 340)
+start = Vec3(450, 62, 425)
 
 width = 15
 room_depth = 14
@@ -67,7 +67,7 @@ def library(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(9, 1, room_depth - 4), pos + Vec3(9, 3, room_depth - 6))
         mcw.set_block_cube(mc.Block("bookshelf"), pos + Vec3(12, 1, room_depth - 4), pos + Vec3(12, 3, room_depth - 6))
 
-        table(pos + Vec3(x1, 1, 3)) 
+        table(pos + Vec3(x1, 1, 3))
         table(pos + Vec3(x2, 1, 3))
 
 
@@ -150,6 +150,76 @@ def storage(pos: Vec3, enter_pos: Literal["near", "far"]):
                 elif block_type == "left_chest":
                     mcw.set_block(mc.Block("chest").withData(
                         {"facing": direction, "type": "left"}), pos + Vec3(dx, dy, dz))
+
+
+def workroom(pos: Vec3, room_side: Literal["left", "right"], enter_pos: Literal["near", "far"]):
+    lighting(pos)
+
+    def furnace_angle(pos: Vec3, direction: Literal["south-east", "north-east", "south-west", "north-west"]):
+        mcw.set_block_cube(mc.Block("oak log"), pos + Vec3(0, 1, 0), pos + Vec3(0, 3, 0))
+        if direction == "south-east":
+            mcw.set_block_cube(mc.Block("furnace").withData(
+                {"facing": "south"}), pos + Vec3(1, 1, 0), pos + Vec3(3, 3, 0))
+            mcw.set_block_cube(mc.Block("blast furnace").withData(
+                {"facing": "east"}), pos + Vec3(0, 1, 1), pos + Vec3(0, 3, 3))
+        elif direction == "north-east":
+            mcw.set_block_cube(mc.Block("blast furnace").withData(
+                {"facing": "north"}), pos + Vec3(1, 1, 0), pos + Vec3(3, 3, 0))
+            mcw.set_block_cube(mc.Block("furnace").withData(
+                {"facing": "east"}), pos + Vec3(0, 1, -1), pos + Vec3(0, 3, -3))
+        elif direction == "south-west":
+            mcw.set_block_cube(mc.Block("blast furnace").withData(
+                {"facing": "south"}), pos + Vec3(-1, 1, 0), pos + Vec3(-3, 3, 0))
+            mcw.set_block_cube(mc.Block("furnace").withData(
+                {"facing": "west"}), pos + Vec3(0, 1, 1), pos + Vec3(0, 3, 3))
+        elif direction == "north-west":
+            mcw.set_block_cube(mc.Block("furnace").withData(
+                {"facing": "north"}), pos + Vec3(-1, 1, 0), pos + Vec3(-3, 3, 0))
+            mcw.set_block_cube(mc.Block("blast furnace").withData(
+                {"facing": "west"}), pos + Vec3(0, 1, -1), pos + Vec3(0, 3, -3))
+
+    # Carpet
+
+    light_carpet = mc.Block("light gray carpet")
+    dark_carpet = mc.Block("gray carpet")
+
+    for dx in range(3, width - 3):
+        for dz in range(3, room_depth - 3):
+            is_dark_carpet = (
+                dx in (3, width - 4, (width - 1) // 2) or
+                dz in (3, room_depth - 4)
+            )
+
+            block_pos = pos + Vec3(dx, 1, dz)
+
+            if is_dark_carpet:
+                mcw.set_block(dark_carpet, block_pos)
+            else:
+                mcw.set_block(light_carpet, block_pos)
+
+    if enter_pos == "near" and room_side == "left":
+        furnace_angle(pos + Vec3(2, 0, 2), "south-east")
+        furnace_angle(pos + Vec3(width - 3, 0, 2), "south-west")
+        furnace_angle(pos + Vec3(width - 3, 0, room_depth - 3), "north-west")
+    elif enter_pos == "near" and room_side == "right":
+        furnace_angle(pos + Vec3(width - 3, 0, room_depth - 3), "north-west")
+        furnace_angle(pos + Vec3(width - 3, 0, 2), "south-west")
+        furnace_angle(pos + Vec3(2, 0, room_depth - 3), "north-east")
+    elif enter_pos == "far" and room_side == "left":
+        furnace_angle(pos + Vec3(2, 0, 2), "south-east")
+        furnace_angle(pos + Vec3(width - 3, 0, 2), "south-west")
+        furnace_angle(pos + Vec3(2, 0, room_depth - 3), "north-east")
+    elif enter_pos == "far" and room_side == "right":
+        furnace_angle(pos + Vec3(2, 0, 2), "south-east")
+        furnace_angle(pos + Vec3(2, 0, room_depth - 3), "north-east")
+        furnace_angle(pos + Vec3(width - 3, 0, room_depth - 3), "north-west")
+
+    for dz in range(room_depth // 2 - 1, room_depth // 2 + 1):
+        mcw.set_block(mc.Block("anvil"), pos + Vec3(5, 1, dz))
+        mcw.set_block(mc.Block("stonecutter"), pos + Vec3(6, 1, dz))
+        mcw.set_block(mc.Block("grindstone").withData({"face": "floor"}), pos + Vec3(7, 1, dz))
+        mcw.set_block(mc.Block("stonecutter"), pos + Vec3(8, 1, dz))
+        mcw.set_block(mc.Block("anvil"), pos + Vec3(9, 1, dz))
 
 
 def ladder(pos: Vec3, floor: int, floor_height: int):
@@ -264,12 +334,17 @@ for f in range(floors):
 
 roof(start)
 
-library(start + Vec3(0, 0, 0), room_side="left", enter_pos="near")
-library(start + Vec3(0, 0, 19), room_side="right", enter_pos="near")
-bedroom(start + Vec3(0, floor_height, 0), room_side="left", enter_pos="far")
-bedroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
-storage(start + Vec3(0, floor_height * 2, 0), enter_pos="near")
-storage(start + Vec3(0, floor_height * 2, 19), enter_pos="near")
+# library(start + Vec3(0, 0, 0), room_side="left", enter_pos="near")
+# library(start + Vec3(0, 0, 19), room_side="right", enter_pos="near")
+# bedroom(start + Vec3(0, floor_height, 0), room_side="left", enter_pos="far")
+# bedroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
+# storage(start + Vec3(0, floor_height * 2, 0), enter_pos="near")
+# storage(start + Vec3(0, floor_height * 2, 19), enter_pos="near")
+
+workroom(start, room_side="left", enter_pos="near")
+workroom(start + Vec3(0, 0, 19), room_side="right", enter_pos="near")
+workroom(start + Vec3(0, floor_height, 0), room_side="left", enter_pos="far")
+workroom(start + Vec3(0, floor_height, 19), room_side="right", enter_pos="far")
 
 mcw.draw()
 mc.postToChat("Стройка небоскреба завершена!")
