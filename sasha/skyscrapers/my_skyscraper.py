@@ -3,6 +3,7 @@ from typing import Literal
 from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
+from sasha.skyscrapers.build_params import BuildParams
 
 
 class MySkyscraper:
@@ -21,39 +22,32 @@ class MySkyscraper:
         self.atrium_block = mc.Block("glowstone")
         self.railing_block = mc.Block("pale oak fence")
 
-    def build(self, pos: Vec3):
-
-        self.floors = 20
-        self.floor_height = 5
-        self.width = 19
-        self.depth = 15
-
-        self.start = pos
+    def build(self, build_params: BuildParams):
 
         self.mc.postToChat("Стройка небоскреба №1...")
 
-        for f in range(self.floors):
-            self._build_floor(f)
+        for f in range(build_params.floors):
+            self._build_floor(f, build_params)
 
-        self._roof()
-        self._antennas()
+        self._roof(build_params)
+        self._antennas(build_params)
 
         self.mcw.draw()
         self.mc.postToChat("Стройка небоскреба завершена!")
 
-    def _roof(self):
-        roof_shift = self.floors * self.floor_height
-        for dx in range(-1, self.width + 2):
-            for dz in range(-1, self.depth + 2):
-                self.mcw.set_block(self.roof_block, self.start + Vec3(dx, roof_shift, dz))
+    def _roof(self, params: BuildParams):
+        roof_shift = params.floors * params.floor_height
+        for dx in range(-1, params.width + 2):
+            for dz in range(-1, params.depth + 2):
+                self.mcw.set_block(self.roof_block, params.start + Vec3(dx, roof_shift, dz))
 
-    def _antennas(self):
-        roof_shift = self.floors * self.floor_height
+    def _antennas(self, params: BuildParams):
+        roof_shift = params.floors * params.floor_height
         for i in range(3):
-            dx = self.width // 3 * i + 2
-            dz = self.depth // 2
+            dx = params.width // 3 * i + 2
+            dz = params.depth // 2
             for a in range(5 + i * 2):
-                self.mcw.set_block(self.antenna_block, self.start + Vec3(dx, roof_shift + 1 + a, dz))
+                self.mcw.set_block(self.antenna_block, params.start + Vec3(dx, roof_shift + 1 + a, dz))
 
     def _table_with_lanterns(self, pos: Vec3):
         self.mcw.set_block(self.mc.Block("crafting table"), pos + Vec3(0, 0, 0))
@@ -256,16 +250,16 @@ class MySkyscraper:
         else:
             even_floor()
 
-    def _build_floor(self, floor: int):
-        floor_shift = Vec3(0, floor * self.floor_height, 0)
-        floor_start = self.start + floor_shift
-        for y in range(self.floor_height):
-            for dx in range(self.width):
-                for dz in range(self.depth):
+    def _build_floor(self, floor: int, params: BuildParams):
+        floor_shift = Vec3(0, floor * params.floor_height, 0)
+        floor_start = params.start + floor_shift
+        for y in range(params.floor_height):
+            for dx in range(params.width):
+                for dz in range(params.depth):
                     pos = floor_start + Vec3(dx, y, dz)
 
                     # Внешний каркас
-                    is_edge = dx in (0, self.width - 1) or dz in (0, self.depth - 1)
+                    is_edge = dx in (0, params.width - 1) or dz in (0, params.depth - 1)
 
                     if is_edge:
                         if 1 <= y <= 3:
@@ -276,22 +270,22 @@ class MySkyscraper:
                     else:
                         self.mcw.set_block(self.floor_block, floor_start + Vec3(dx, 0, dz))
 
-        if floor != self.floors - 1:
+        if floor != params.floors - 1:
             self._ladder(
                 floor_start +
                 Vec3(
-                    self.width -
+                    params.width -
                     1,
                     0,
-                    self.depth -
+                    params.depth -
                     1),
                 floor,
-                self.floor_height,
-                self.floors -
+                params.floor_height,
+                params.floors -
                 2)
 
         self._atrium_and_pillars(
-            floor_start + Vec3(self.width // 2, 0, self.depth // 2), self.atrium_block, self.pillar_block, self.floor_height)
+            floor_start + Vec3(params.width // 2, 0, params.depth // 2), self.atrium_block, self.pillar_block, params.floor_height)
 
         # Мебель
 
@@ -306,17 +300,15 @@ class MySkyscraper:
         self.mcw.set_block(self.mc.Block("lantern"), floor_start + Vec3(2, 2, 2))
 
         # Другое
-        self._storage(floor_start + Vec3(2, 0, self.depth - 3), "oak")
+        self._storage(floor_start + Vec3(2, 0, params.depth - 3), "oak")
 
         if floor % 2 == 0:
-            self._bookshelves_and_lanterns(floor_start + Vec3(self.width - 3, 1, 2))
-            self._table_with_lanterns(floor_start + Vec3(self.width - 4, 1, self.depth - 2))
-            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(self.width - 1, 1, self.depth - 3))
-            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(self.width - 1, 2, self.depth - 3))
+            self._bookshelves_and_lanterns(floor_start + Vec3(params.width - 3, 1, 2))
+            self._table_with_lanterns(floor_start + Vec3(params.width - 4, 1, params.depth - 2))
+            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(params.width - 1, 1, params.depth - 3))
+            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(params.width - 1, 2, params.depth - 3))
         else:
-            self._sofa_with_table("oak", floor_start + Vec3(self.width - 5, 1, self.depth - 5))
-            self._table_with_lanterns(floor_start + Vec3(self.width - 4, 1, 1))
-            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(self.width - 1, 1, 2))
-            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(self.width - 1, 2, 2))
-
-
+            self._sofa_with_table("oak", floor_start + Vec3(params.width - 5, 1, params.depth - 5))
+            self._table_with_lanterns(floor_start + Vec3(params.width - 4, 1, 1))
+            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(params.width - 1, 1, 2))
+            self.mcw.set_block(self.mc.Block("air"), floor_start + Vec3(params.width - 1, 2, 2))
