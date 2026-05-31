@@ -4,10 +4,10 @@ from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
 
-mc = Minecraft('localhost')
+mc = Minecraft('192.168.1.66')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(235, 63, 235)
+start = Vec3(-920, 66, -900)
 
 # Увеличенные параметры здания
 floors = 35  # Больше этажей

@@ -3,16 +3,16 @@ from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
 
-mc = Minecraft('localhost')
+mc = Minecraft('192.168.1.66')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(450, 62, 425)
+start = Vec3(-1050, 64, -900)
 
 width = 15
 room_depth = 14
 depth = room_depth * 2 + 5
 floor_height = 5
-floors = 3
+floors = 16
 
 wall_block = mc.Block("light gray concrete")
 roof_block = mc.Block("gray concrete")

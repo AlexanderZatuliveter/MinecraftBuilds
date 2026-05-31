@@ -4,10 +4,10 @@ from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
 
-mc = Minecraft('localhost')
+mc = Minecraft('192.168.1.66')
 mcw = MinecraftWrap(mc)
 
-start = Vec3(136, 63, 208)
+start = Vec3(-873, 70, -718)
 
 floors = 20
 floor_height = 5
