@@ -3,6 +3,7 @@ Luxury Tower — современная башня с террасами, бас
 лобби, кухнями, спальнями, библиотеками, садом и фонтаном у входа.
 """
 
+from common.minecraft_wrap import MinecraftWrap
 import random
 from pathlib import Path
 import sys
@@ -13,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from common.minecraft_wrap import MinecraftWrap
 
 mc = Minecraft("192.168.1.88")
 mcw = MinecraftWrap(mc)
@@ -27,33 +27,33 @@ width = 21       # X
 depth = 17       # Z
 
 # ── палитра блоков ──
-wall_block       = mc.Block("white concrete")
-accent_wall      = mc.Block("light gray concrete")
-glass_block      = mc.Block("light blue stained glass pane")
-dark_glass       = mc.Block("gray stained glass pane")
-floor_block      = mc.Block("polished andesite")
-ceiling_block    = mc.Block("smooth stone")
-pillar_block     = mc.Block("quartz pillar")
-roof_block       = mc.Block("black concrete")
-roof_slab        = mc.Block("blackstone slab")
-antenna_block    = mc.Block("iron bars")
-railing_block    = mc.Block("dark oak fence")
-carpet_light     = mc.Block("light gray carpet")
-carpet_dark      = mc.Block("gray carpet")
-carpet_red       = mc.Block("red carpet")
-lantern_hang     = mc.Block("lantern").withData({"hanging": True})
-lantern_floor    = mc.Block("lantern")
-soul_lantern     = mc.Block("soul lantern").withData({"hanging": True})
-pool_block       = mc.Block("prismarine bricks")
-water_block      = mc.Block("water")
-leaf_block       = mc.Block("oak leaves").withData({"persistent": True})
-log_block        = mc.Block("oak log")
-grass_block      = mc.Block("grass block")
+wall_block = mc.Block("white concrete")
+accent_wall = mc.Block("light gray concrete")
+glass_block = mc.Block("light blue stained glass pane")
+dark_glass = mc.Block("gray stained glass pane")
+floor_block = mc.Block("polished andesite")
+ceiling_block = mc.Block("smooth stone")
+pillar_block = mc.Block("quartz pillar")
+roof_block = mc.Block("black concrete")
+roof_slab = mc.Block("blackstone slab")
+antenna_block = mc.Block("iron bars")
+railing_block = mc.Block("dark oak fence")
+carpet_light = mc.Block("light gray carpet")
+carpet_dark = mc.Block("gray carpet")
+carpet_red = mc.Block("red carpet")
+lantern_hang = mc.Block("lantern").withData({"hanging": True})
+lantern_floor = mc.Block("lantern")
+soul_lantern = mc.Block("soul lantern").withData({"hanging": True})
+pool_block = mc.Block("prismarine bricks")
+water_block = mc.Block("water")
+leaf_block = mc.Block("oak leaves").withData({"persistent": True})
+log_block = mc.Block("oak log")
+grass_block = mc.Block("grass block")
 flower_pot_block = mc.Block("potted poppy")
-path_block       = mc.Block("smooth stone")
-hedge_block      = mc.Block("spruce leaves").withData({"persistent": True})
-plaza_block      = mc.Block("polished diorite")
-bench_block      = mc.Block("spruce stairs")
+path_block = mc.Block("smooth stone")
+hedge_block = mc.Block("spruce leaves").withData({"persistent": True})
+plaza_block = mc.Block("polished diorite")
+bench_block = mc.Block("spruce stairs")
 
 
 # ═══════════════════════  ВСПОМОГАТЕЛЬНЫЕ  ═══════════════════════
