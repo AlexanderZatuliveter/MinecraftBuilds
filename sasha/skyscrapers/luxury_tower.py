@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 mc = Minecraft("192.168.1.88")
 mcw = MinecraftWrap(mc)
 
-start = Vec3(-1000, 67, -700)
+start = Vec3(-1050, 67, -700)
 
 # ── размеры ──
 floors = 18
@@ -265,21 +265,8 @@ def build_living_floor(pos: Vec3, floor_num: int):
             c = carpet_dark if (dx + dz) % 5 == 0 else carpet_light
             place(c, pos + Vec3(dx, 1, dz))
 
-    # ── разделительные стены (внутренние) ──
     mid_x = width // 2
     mid_z = depth // 2
-    # стена по X (делит на 2 зоны по Z)
-    for dx in range(2, width - 2):
-        for dy in range(1, floor_height - 1):
-            if dx in (mid_x - 1, mid_x, mid_x + 1):
-                continue  # проход
-            place(accent_wall, pos + Vec3(dx, dy, mid_z))
-    # стена по Z в верхней половине (делит на 2 комнаты)
-    for dz in range(2, mid_z):
-        for dy in range(1, floor_height - 1):
-            if dz in (mid_z // 2 - 1, mid_z // 2, mid_z // 2 + 1):
-                continue
-            place(accent_wall, pos + Vec3(mid_x, dy, dz))
 
     # ── Зона A: спальня (левая верхняя четверть) ──
     bed_colors = ["red", "blue", "cyan", "lime", "pink", "purple", "orange", "magenta"]
