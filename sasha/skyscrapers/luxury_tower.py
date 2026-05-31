@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 mc = Minecraft("192.168.1.88")
 mcw = MinecraftWrap(mc)
 
-start = Vec3(-1050, 67, -700)
+start = Vec3(-1450, 67, -700)
 
 # ── размеры ──
 floors = 18
@@ -227,15 +227,15 @@ def build_lobby(pos: Vec3):
     sofa(pos + Vec3(2, 1, 3), 3, "east", "dark_oak")
     dining_table(pos + Vec3(2, 1, 7), 2, "z")
 
-    # зона отдыха справа
-    sofa(pos + Vec3(width - 4, 1, 3), 3, "west", "dark_oak")
-    dining_table(pos + Vec3(width - 3, 1, 7), 2, "z")
+    # зона отдыха справа — сдвинута от лестницы
+    sofa(pos + Vec3(12, 1, 3), 3, "west", "dark_oak")
+    dining_table(pos + Vec3(12, 1, 7), 2, "z")
 
     # цветы по углам
     flower_row(pos + Vec3(2, 1, 2), 3, "x")
-    flower_row(pos + Vec3(width - 5, 1, 2), 3, "x")
+    flower_row(pos + Vec3(11, 1, 2), 3, "x")
     flower_row(pos + Vec3(2, 1, depth - 3), 3, "x")
-    flower_row(pos + Vec3(width - 5, 1, depth - 3), 3, "x")
+    flower_row(pos + Vec3(11, 1, depth - 3), 3, "x")
 
     # ковровая дорожка ко входу
     for dz in range(1, depth - 1):
@@ -249,9 +249,9 @@ def build_lobby(pos: Vec3):
 
     # напольные лампы у входа
     floor_lamp(pos + Vec3(1, 1, 1))
-    floor_lamp(pos + Vec3(width - 2, 1, 1))
+    floor_lamp(pos + Vec3(14, 1, 1))
     floor_lamp(pos + Vec3(1, 1, depth - 2))
-    floor_lamp(pos + Vec3(width - 2, 1, depth - 2))
+    floor_lamp(pos + Vec3(14, 1, depth - 2))
 
 
 # ═══════════════════════  ЖИЛОЙ ЭТАЖ  ═══════════════════════
@@ -259,8 +259,11 @@ def build_lobby(pos: Vec3):
 def build_living_floor(pos: Vec3, floor_num: int):
     """Жилой этаж: спальня, гостиная, кухня, ванная."""
 
-    # ── ковёр ──
-    for dx in range(2, width - 2):
+    # ── зона лестницы — не ставить мебель при x >= stair_x_min ──
+    stair_x_min = width - 6  # = 15
+
+    # ── ковёр (только в жилой зоне, не в лестничном коридоре) ──
+    for dx in range(2, stair_x_min):
         for dz in range(2, depth - 2):
             c = carpet_dark if (dx + dz) % 5 == 0 else carpet_light
             place(c, pos + Vec3(dx, 1, dz))
@@ -283,24 +286,25 @@ def build_living_floor(pos: Vec3, floor_num: int):
     floor_lamp(pos + Vec3(2, 1, 5))
     place(lantern_hang, pos + Vec3(4, floor_height - 1, 3))
 
-    # ── Зона B: кухня (правая верхняя четверть) ──
-    kitchen_counter(pos + Vec3(mid_x + 2, 1, 2), 5, "north")
+    # ── Зона B: кухня (до лестничного коридора) ──
+    kitchen_counter(pos + Vec3(mid_x + 1, 1, 2), 3, "north")
+    # холодильник (железный блок + дверь) — рядом с гарнитуром
+    place(mc.Block("iron block"), pos + Vec3(stair_x_min - 1, 1, 2))
+    place(mc.Block("iron block"), pos + Vec3(stair_x_min - 1, 2, 2))
+    place(mc.Block("iron_door").withData({"facing": "south", "half": "lower"}),
+          pos + Vec3(stair_x_min - 1, 1, 3))
+    # раковина (котёл)
+    place(mc.Block("cauldron"), pos + Vec3(mid_x + 1, 1, 3))
     # обеденный стол
-    dining_table(pos + Vec3(mid_x + 3, 1, mid_z - 3), 3, "x")
+    dining_table(pos + Vec3(mid_x + 1, 1, mid_z - 3), 3, "x")
     # стулья
     for i in range(3):
         place(mc.Block("spruce stairs").withData({"facing": "north"}),
-              pos + Vec3(mid_x + 3 + i, 1, mid_z - 2))
+              pos + Vec3(mid_x + 1 + i, 1, mid_z - 2))
         place(mc.Block("spruce stairs").withData({"facing": "south"}),
-              pos + Vec3(mid_x + 3 + i, 1, mid_z - 4))
-    # холодильник (железный блок + дверь)
-    place(mc.Block("iron block"), pos + Vec3(width - 3, 1, 2))
-    place(mc.Block("iron block"), pos + Vec3(width - 3, 2, 2))
-    place(mc.Block("iron_door").withData({"facing": "south", "half": "lower"}), pos + Vec3(width - 3, 1, 3))
-    # раковина (котёл)
-    place(mc.Block("cauldron"), pos + Vec3(mid_x + 2, 1, 3))
+              pos + Vec3(mid_x + 1 + i, 1, mid_z - 4))
     # свет
-    chandelier(pos + Vec3(mid_x + 5, floor_height - 1, mid_z // 2))
+    chandelier(pos + Vec3(mid_x + 2, floor_height - 1, mid_z // 2))
 
     # ── Зона C: гостиная (нижняя половина) ──
     sofa(pos + Vec3(3, 1, mid_z + 3), 4, "east", "dark_oak")
@@ -318,23 +322,23 @@ def build_living_floor(pos: Vec3, floor_num: int):
     place(mc.Block("bricks"), pos + Vec3(2, 4, depth - 3))
     place(mc.Block("bricks"), pos + Vec3(3, 4, depth - 3))
     place(mc.Block("bricks"), pos + Vec3(4, 4, depth - 3))
-    # ТВ (чёрный бетон)
-    fill(mc.Block("black concrete"), pos + Vec3(width - 3, 2, mid_z + 3),
-         pos + Vec3(width - 3, 3, mid_z + 5))
+    # ТВ (чёрный бетон) — на перегородке ближе к центру
+    fill(mc.Block("black concrete"), pos + Vec3(mid_x + 1, 2, mid_z + 3),
+         pos + Vec3(mid_x + 1, 3, mid_z + 5))
     # диван перед ТВ
-    sofa(pos + Vec3(width - 6, 1, mid_z + 3), 2, "east", "spruce")
-    # цветы
-    flower_row(pos + Vec3(width - 3, 1, depth - 4), 3, "z")
+    sofa(pos + Vec3(mid_x + 3, 1, mid_z + 3), 2, "west", "spruce")
+    # цветы — слева у камина
+    flower_row(pos + Vec3(2, 1, depth - 4), 3, "z")
     # книжная полка
-    bookshelf_wall(pos + Vec3(mid_x + 1, 1, depth - 2), 4, 3)
+    bookshelf_wall(pos + Vec3(mid_x + 1, 1, depth - 2), 3, 3)
     # свет гостиной
     chandelier(pos + Vec3(width // 4, floor_height - 1, mid_z + depth // 4))
-    chandelier(pos + Vec3(3 * width // 4, floor_height - 1, mid_z + depth // 4))
+    chandelier(pos + Vec3(mid_x + 2, floor_height - 1, mid_z + depth // 4))
     floor_lamp(pos + Vec3(2, 1, mid_z + 2))
-    floor_lamp(pos + Vec3(width - 2, 1, mid_z + 2))
+    floor_lamp(pos + Vec3(stair_x_min - 1, 1, mid_z + 2))
 
-    # ── Цветочные горшки на подоконниках ──
-    for dx in range(3, width - 3, 4):
+    # ── Цветочные горшки на подоконниках (до зоны лестницы) ──
+    for dx in range(3, stair_x_min, 4):
         place(mc.Block("potted_fern"), pos + Vec3(dx, 1, 1))
         place(mc.Block("potted_fern"), pos + Vec3(dx, 1, depth - 2))
 
@@ -380,6 +384,20 @@ def build_floor_shell(floor_num: int):
     floor_shift = Vec3(0, floor_num * floor_height, 0)
     fp = start + floor_shift   # floor pos
 
+    # ── проём в полу для лестницы с нижнего этажа ──
+    stair_opening = set()
+    if floor_num > 0:
+        sx = width - 3
+        prev = floor_num - 1
+        if prev % 2 == 0:
+            for dx in range(sx - 1, sx + 1):
+                for dz in range(3, 3 + floor_height + 3):
+                    stair_opening.add((dx, dz))
+        else:
+            for dx in range(sx - 1, sx + 1):
+                for dz in range(depth - 4 - floor_height - 2, depth - 3):
+                    stair_opening.add((dx, dz))
+
     for y in range(floor_height):
         for dx in range(width):
             for dz in range(depth):
@@ -389,6 +407,8 @@ def build_floor_shell(floor_num: int):
 
                 # пол
                 if y == 0 and not is_edge:
+                    if (dx, dz) in stair_opening:
+                        continue
                     place(floor_block, p)
 
                 # каркас стен
@@ -481,17 +501,17 @@ def build_roof():
 
     # ── сад на крыше ──
     for dx in range(12, width - 2):
-        for dz in range(2, 6):
+        for dz in range(2, 5):
             place(grass_block, rp + Vec3(dx, 0, dz))
-    tree(rp + Vec3(15, 1, 4), 4)
+    tree(rp + Vec3(15, 1, 3), 4)
     flower_row(rp + Vec3(12, 1, 2), 5, "x")
-    flower_row(rp + Vec3(12, 1, 5), 5, "x")
+    flower_row(rp + Vec3(12, 1, 4), 5, "x")
 
     # ── зона отдыха ──
-    sofa(rp + Vec3(3, 1, depth - 4), 3, "east", "spruce")
-    dining_table(rp + Vec3(3, 1, depth - 6), 3, "x")
-    floor_lamp(rp + Vec3(2, 1, depth - 3))
-    floor_lamp(rp + Vec3(7, 1, depth - 3))
+    sofa(rp + Vec3(3, 1, depth - 5), 3, "east", "spruce")
+    dining_table(rp + Vec3(3, 1, depth - 7), 3, "x")
+    floor_lamp(rp + Vec3(2, 1, depth - 4))
+    floor_lamp(rp + Vec3(7, 1, depth - 4))
 
     # ── ограждение крыши ──
     for dx in range(-1, width + 1):
@@ -502,26 +522,28 @@ def build_roof():
         place(railing_block, rp + Vec3(width, 1, dz))
 
     # ── антенны ──
-    for i, dx in enumerate([4, width // 2, width - 5]):
+    for i, dx in enumerate([0, width - 1]):
         h = 7 + i * 2
         for a in range(h):
-            place(antenna_block, rp + Vec3(dx, 2 + a, depth // 2))
-    # красный маячок
-    place(mc.Block("redstone lamp"), rp + Vec3(width // 2, 2 + 9, depth // 2))
+            place(antenna_block, rp + Vec3(dx, 1 + a, depth // 2))
 
-    # ── вертолётная площадка ──
-    fill(mc.Block("yellow concrete"), rp + Vec3(width // 2 - 3, 1, depth // 2 - 3),
-         rp + Vec3(width // 2 + 3, 1, depth // 2 + 3))
-    fill(roof_block, rp + Vec3(width // 2 - 2, 1, depth // 2 - 2),
-         rp + Vec3(width // 2 + 2, 1, depth // 2 + 2))
+    # красный маячок
+    place(mc.Block("redstone torch"), rp + Vec3(width - 1, 1 + 9, depth // 2))
+
+    # ── вертолётная площадка (смещена вправо-вниз, чтобы не пересекать бассейн) ──
+    heli_x, heli_z = 14, 12
+    fill(mc.Block("yellow concrete"), rp + Vec3(heli_x - 3, 1, heli_z - 3),
+         rp + Vec3(heli_x + 3, 1, heli_z + 3))
+    fill(roof_block, rp + Vec3(heli_x - 2, 1, heli_z - 2),
+         rp + Vec3(heli_x + 2, 1, heli_z + 2))
     # H
-    place(mc.Block("white concrete"), rp + Vec3(width // 2 - 1, 1, depth // 2 - 1))
-    place(mc.Block("white concrete"), rp + Vec3(width // 2 - 1, 1, depth // 2))
-    place(mc.Block("white concrete"), rp + Vec3(width // 2 - 1, 1, depth // 2 + 1))
-    place(mc.Block("white concrete"), rp + Vec3(width // 2, 1, depth // 2))
-    place(mc.Block("white concrete"), rp + Vec3(width // 2 + 1, 1, depth // 2 - 1))
-    place(mc.Block("white concrete"), rp + Vec3(width // 2 + 1, 1, depth // 2))
-    place(mc.Block("white concrete"), rp + Vec3(width // 2 + 1, 1, depth // 2 + 1))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x - 1, 1, heli_z - 1))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x - 1, 1, heli_z))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x - 1, 1, heli_z + 1))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x, 1, heli_z))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x + 1, 1, heli_z - 1))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x + 1, 1, heli_z))
+    place(mc.Block("white concrete"), rp + Vec3(heli_x + 1, 1, heli_z + 1))
 
 
 # ═══════════════════════  ОКРУЖЕНИЕ  ═══════════════════════
@@ -622,7 +644,8 @@ build_lobby(start)
 for f in range(1, floors):
     fp = start + Vec3(0, f * floor_height, 0)
     build_living_floor(fp, f)
-    build_stairs(fp, f)
+    if f < floors - 1:
+        build_stairs(fp, f)
 
 # 4. Балконы
 for f in range(floors):
