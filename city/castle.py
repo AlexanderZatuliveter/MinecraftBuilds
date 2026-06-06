@@ -30,6 +30,7 @@ class MassiveCastle:
         for f in range(params.floors):
             self._build_floor(f, params)
 
+        self._build_roof(params)
         self._build_towers(params)
         self.mcw.draw()
         self.mc.postToChat("Castle construction completed!")
@@ -74,7 +75,8 @@ class MassiveCastle:
 
                     # Add glowstone lighting at the top of pillars
                     if y == params.floor_height - 1:
-                        self.mcw.set_block(self.mc.Block("glowstone"), pos)
+                        glow = self.mc.Block("glowstone")
+                        self.mcw.set_block(glow, pos)
 
     def _generate_rooms(self, start: Vec3, params: BuildParams):
         # Divide space into large colorful rooms
@@ -94,11 +96,72 @@ class MassiveCastle:
                                          rz == 0 or rz == room_size - 1)
 
                             # Leave space for doors
-                            is_door = is_r_edge and ry in (1, 2) and (rx == 8 or rz == 8)
+                            is_door = (is_r_edge and ry in (1, 2) and
+                                       (rx == 8 or rz == 8))
 
                             if is_r_edge and not is_door:
                                 r_pos = start + Vec3(dx + rx, ry, dz + rz)
                                 self.mcw.set_block(wall_block, r_pos)
+
+    def _build_roof(self, params: BuildParams):
+        # Build a carved roof with high decorative spires and towers
+        roof_y = params.floors * params.floor_height
+
+        for dx in range(params.width):
+            for dz in range(params.depth):
+                is_edge = (dx == 0 or dx == params.width - 1 or
+                           dz == 0 or dz == params.depth - 1)
+                if is_edge:
+                    # Carved pattern: alternating peaks on edges
+                    if (dx + dz) % 2 == 0:
+                        pos = params.start + Vec3(dx, roof_y, dz)
+                        self.mcw.set_block(self.pillar, pos)
+                        wall_blk = self.mc.Block("stone_brick_wall")
+                        self.mcw.set_block(wall_blk, pos + Vec3(0, 1, 0))
+                else:
+                    # Standard roof ceiling layer
+                    pos = params.start + Vec3(dx, roof_y - 1, dz)
+                    self.mcw.set_block(self.floor_block, pos)
+
+        # Center coordinates for the main gothic spire tower
+        cx = params.width // 2
+        cz = params.depth // 2
+
+        # Build a grand central roof tower
+        for y in range(8):
+            for dx in range(-3, 4):
+                for dz in range(-3, 4):
+                    if abs(dx) == 3 or abs(dz) == 3:
+                        pos = params.start + Vec3(cx + dx, roof_y + y, cz + dz)
+                        self.mcw.set_block(self.wall_base, pos)
+
+        # Add a tall tapered spire on top of the central tower
+        spire_y = roof_y + 8
+        for y in range(12):
+            size = 3 - (y // 4)
+            size = max(0, size)
+            for dx in range(-size, size + 1):
+                for dz in range(-size, size + 1):
+                    pos = params.start + Vec3(cx + dx, spire_y + y, cz + dz)
+                    blk = (self.pillar if size > 0
+                           else self.mc.Block("stone_brick_wall"))
+                    self.mcw.set_block(blk, pos)
+
+        # Add extra decorative spires across the roof landscape
+        spacing = 16
+        for dx in range(spacing, params.width - spacing, spacing):
+            for dz in range(spacing, params.depth - spacing, spacing):
+                if abs(dx - cx) > 5 or abs(dz - cz) > 5:
+                    self._build_small_spire(
+                        params.start + Vec3(dx, roof_y, dz)
+                    )
+
+    def _build_small_spire(self, base_pos: Vec3):
+        # Build a sharp 5-block tall spire
+        for y in range(4):
+            self.mcw.set_block(self.pillar, base_pos + Vec3(0, y, 0))
+        top_blk = self.mc.Block("stone_brick_wall")
+        self.mcw.set_block(top_blk, base_pos + Vec3(0, 4, 0))
 
     def _build_towers(self, params: BuildParams):
         # Add high watchtowers at the 4 corners of the castle
