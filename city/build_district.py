@@ -2,11 +2,11 @@ import random
 
 from mcpq import Minecraft, Vec3
 from common.minecraft_wrap import MinecraftWrap
-from sasha.skyscrapers.build_params import BuildParams
-from sasha.skyscrapers.my_skyscraper import MySkyscraper
-from sasha.skyscrapers.luxury_tower import LuxuryTower
-from sasha.skyscrapers.crystal_crown_tower import CrystalCrownTower
-from sasha.skyscrapers.gemini_skyscraper import GeminiSkyscraper
+from city.build_params import BuildParams
+from city.my_skyscraper import MySkyscraper
+from city.luxury_tower import LuxuryTower
+from city.crystal_crown_tower import CrystalCrownTower
+from city.gemini_skyscraper import GeminiSkyscraper
 
 mc = Minecraft('192.168.1.88')
 mcw = MinecraftWrap(mc)

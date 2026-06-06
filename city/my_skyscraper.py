@@ -3,7 +3,7 @@ from typing import Literal
 from mcpq import Block, Minecraft, Vec3
 
 from common.minecraft_wrap import MinecraftWrap
-from sasha.skyscrapers.build_params import BuildParams
+from city.build_params import BuildParams
 
 
 class MySkyscraper:
