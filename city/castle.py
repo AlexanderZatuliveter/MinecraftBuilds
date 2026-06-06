@@ -16,6 +16,7 @@ class MassiveCastle:
         self.wall_mossy = mc.Block("mossy_stone_bricks")
         self.pillar = mc.Block("chiseled_stone_bricks")
         self.floor_block = mc.Block("cobblestone")
+        self.window_pane = mc.Block("glass_pane")
 
         # Colors for varied rooms
         self.colors = [
@@ -46,7 +47,7 @@ class MassiveCastle:
         self._generate_rooms(f_start, params)
 
     def _outer_walls(self, start: Vec3, params: BuildParams):
-        # Generate massive outer walls with ancient texture variation
+        # Generate massive outer walls with ancient texture variation, pillars, and arches
         for y in range(params.floor_height):
             for dx in range(params.width):
                 for dz in range(params.depth):
@@ -56,10 +57,31 @@ class MassiveCastle:
                                dz == 0 or dz == params.depth - 1)
 
                     if is_edge:
-                        # Randomize blocks for ancient look
-                        is_mossy = random.random() < 0.3
-                        block = self.wall_mossy if is_mossy else self.wall_base
-                        self.mcw.set_block(block, pos)
+                        # Add grand external columns every 4 blocks for majestic depth
+                        is_pillar_spot = (dx % 4 == 0 and dz % 4 == 0)
+
+                        # Create architectural arches between columns
+                        # Arch top is at height - 2, sides are at height - 3 and height - 4
+                        is_arch_top = (y == params.floor_height - 2 and
+                                       (dx % 4 == 2 or dz % 4 == 2))
+                        is_arch_side = (y in (params.floor_height - 3, params.floor_height - 4)
+                                        and (dx % 4 in (1, 3) or dz % 4 in (1, 3)))
+                        is_window = (y in (2, 3) and (dx % 4 == 2 or dz % 4 == 2))
+
+                        if is_pillar_spot:
+                            # External decorative pillars select from chiseled bricks
+                            self.mcw.set_block(self.pillar, pos)
+                        elif is_arch_top or is_arch_side:
+                            # Highlight arches with select materials
+                            self.mcw.set_block(self.pillar, pos)
+                        elif is_window:
+                            # Open select windows inside arches for grand look
+                            self.mcw.set_block(self.window_pane, pos)
+                        else:
+                            # Randomize blocks for ancient look inside the main wall
+                            is_mossy = random.random() < 0.3
+                            block = self.wall_mossy if is_mossy else self.wall_base
+                            self.mcw.set_block(block, pos)
                     elif y == 0:
                         # Base floor layer
                         self.mcw.set_block(self.floor_block, pos)
